@@ -3,8 +3,12 @@ const input = document.getElementById('habit-input');
 const list = document.getElementById('habit-list');
 const emptyMessage = document.getElementById('empty-message');
 const saveMessage = document.getElementById('save-message');
+const undoMessage = document.getElementById('undo-message');
+const undoText = document.getElementById('undo-text');
+const undoButton = document.getElementById('undo-button');
 
 const STORAGE_KEY = 'habit-tracker.habits';
+const UNDO_MS = 5000;
 
 // A habit is { name, doneDates }, where doneDates holds local dates as 'YYYY-MM-DD'.
 function loadHabits() {
@@ -71,16 +75,50 @@ function renderIfNewDay() {
   return true;
 }
 
+// A deleted habit is hidden straight away but stays in the saved data until the undo time runs out.
+let pendingDelete = null;
+let pendingTimer;
+
+function deleteHabit(habit) {
+  // Only one delete can be undone at a time, so an earlier one becomes permanent now.
+  finishDelete();
+
+  pendingDelete = habit;
+  pendingTimer = setTimeout(finishDelete, UNDO_MS);
+  undoText.textContent = `Deleted "${habit.name}".`;
+  undoMessage.hidden = false;
+  render();
+}
+
+function finishDelete() {
+  if (!pendingDelete) return;
+
+  clearTimeout(pendingTimer);
+  habits.splice(habits.indexOf(pendingDelete), 1);
+  pendingDelete = null;
+  undoMessage.hidden = true;
+  saveHabits();
+}
+
+function undoDelete() {
+  clearTimeout(pendingTimer);
+  pendingDelete = null;
+  undoMessage.hidden = true;
+  render();
+}
+
 function render() {
   const today = todayKey();
+  const shown = habits.filter((habit) => habit !== pendingDelete);
   renderedDay = today;
   list.replaceChildren();
 
-  for (const habit of habits) {
+  for (const habit of shown) {
     const item = document.createElement('li');
     const label = document.createElement('label');
     const checkbox = document.createElement('input');
     const name = document.createElement('span');
+    const remove = document.createElement('button');
 
     checkbox.type = 'checkbox';
     checkbox.checked = habit.doneDates.includes(today);
@@ -96,12 +134,17 @@ function render() {
       item.classList.toggle('done', done);
     });
 
+    remove.type = 'button';
+    remove.textContent = '×';
+    remove.setAttribute('aria-label', `Delete ${habit.name}`);
+    remove.addEventListener('click', () => deleteHabit(habit));
+
     label.append(checkbox, name);
-    item.appendChild(label);
+    item.append(label, remove);
     list.appendChild(item);
   }
 
-  emptyMessage.hidden = habits.length > 0;
+  emptyMessage.hidden = shown.length > 0;
 }
 
 // Submitting the form covers both the Add button and pressing Enter.
@@ -117,6 +160,8 @@ form.addEventListener('submit', (event) => {
   render();
   saveHabits();
 });
+
+undoButton.addEventListener('click', undoDelete);
 
 // A tab left open overnight should show the new day's ticks when it is looked at again.
 document.addEventListener('visibilitychange', () => {
