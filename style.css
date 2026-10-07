@@ -69,10 +69,49 @@ button:focus-visible {
 }
 
 #habit-list li {
-  padding: 0.75rem;
   margin-bottom: 0.5rem;
   background: #fff;
   border: 1px solid #e2e2e2;
   border-radius: 6px;
   overflow-wrap: anywhere;
+}
+
+/* The whole row is the tap target, not just the checkbox. */
+#habit-list label {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 3.5rem;
+  padding: 0.75rem;
+  cursor: pointer;
+}
+
+#habit-list input[type="checkbox"] {
+  flex: none;
+  width: 1.75rem;
+  height: 1.75rem;
+  margin: 0;
+  accent-color: #2f6f4f;
+  cursor: pointer;
+}
+
+#habit-list input[type="checkbox"]:focus-visible {
+  outline: 2px solid #2f6f4f;
+  outline-offset: 2px;
+}
+
+#habit-list li.done {
+  background: #e3f3e8;
+  border-color: #9ccbb0;
+}
+
+#save-message {
+  margin: 1rem 0 0;
+  font-size: 0.9375rem;
+  color: #666;
+}
+
+#habit-list li.done span {
+  color: #2a5a41;
+  text-decoration: line-through;
 }
