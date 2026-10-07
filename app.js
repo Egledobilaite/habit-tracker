@@ -2,6 +2,7 @@ const form = document.getElementById('add-form');
 const input = document.getElementById('habit-input');
 const list = document.getElementById('habit-list');
 const emptyMessage = document.getElementById('empty-message');
+const saveMessage = document.getElementById('save-message');
 
 const STORAGE_KEY = 'habit-tracker.habits';
 
@@ -30,8 +31,9 @@ function toHabit(entry) {
 function saveHabits() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(habits));
+    saveMessage.hidden = true;
   } catch (error) {
-    alert('Your habits could not be saved, so they may be gone after you reload the page.');
+    saveMessage.hidden = false;
   }
 }
 
@@ -59,8 +61,19 @@ function toggleToday(habit) {
 
 const habits = loadHabits();
 
+// The day the list was last drawn for, so a page left open past midnight can be noticed.
+let renderedDay;
+
+// Redraws the list if the day has changed since it was drawn. Returns whether it did.
+function renderIfNewDay() {
+  if (renderedDay === todayKey()) return false;
+  render();
+  return true;
+}
+
 function render() {
   const today = todayKey();
+  renderedDay = today;
   list.replaceChildren();
 
   for (const habit of habits) {
@@ -75,6 +88,9 @@ function render() {
     name.textContent = habit.name;
 
     checkbox.addEventListener('change', () => {
+      // A tick made on yesterday's list is not recorded; the fresh list is shown instead.
+      if (renderIfNewDay()) return;
+
       const done = toggleToday(habit);
       checkbox.checked = done;
       item.classList.toggle('done', done);
@@ -104,7 +120,7 @@ form.addEventListener('submit', (event) => {
 
 // A tab left open overnight should show the new day's ticks when it is looked at again.
 document.addEventListener('visibilitychange', () => {
-  if (!document.hidden) render();
+  if (!document.hidden) renderIfNewDay();
 });
 
 render();

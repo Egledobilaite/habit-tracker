@@ -105,6 +105,12 @@ button:focus-visible {
   border-color: #9ccbb0;
 }
 
+#save-message {
+  margin: 1rem 0 0;
+  font-size: 0.9375rem;
+  color: #666;
+}
+
 #habit-list li.done span {
   color: #2a5a41;
   text-decoration: line-through;
