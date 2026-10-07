@@ -12,6 +12,7 @@ const undoButton = document.getElementById('undo-button');
 
 const STORAGE_KEY = 'habit-tracker.habits';
 const UNDO_MS = 5000;
+const WEEK_DAYS = 7;
 
 // A habit is { name, doneDates }, where doneDates holds local dates as 'YYYY-MM-DD'.
 function loadHabits() {
@@ -45,11 +46,37 @@ function saveHabits() {
 }
 
 // Uses the local date, so the day changes at the user's midnight rather than UTC's.
+function dateKey(date) {
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${date.getFullYear()}-${month}-${day}`;
+}
+
 function todayKey() {
-  const now = new Date();
-  const month = String(now.getMonth() + 1).padStart(2, '0');
-  const day = String(now.getDate()).padStart(2, '0');
-  return `${now.getFullYear()}-${month}-${day}`;
+  return dateKey(new Date());
+}
+
+// The last 7 local dates, oldest first and today last.
+function lastWeekKeys() {
+  const keys = [];
+  for (let daysAgo = WEEK_DAYS - 1; daysAgo >= 0; daysAgo--) {
+    const date = new Date();
+    date.setDate(date.getDate() - daysAgo);
+    keys.push(dateKey(date));
+  }
+  return keys;
+}
+
+// Draws a habit's squares and its "X of the last 7 days" line. Missed days are just not filled.
+function showWeek(habit, squares, weekLine) {
+  const days = lastWeekKeys().map((key) => habit.doneDates.includes(key));
+
+  squares.replaceChildren(...days.map((done) => {
+    const square = document.createElement('span');
+    square.className = done ? 'day filled' : 'day';
+    return square;
+  }));
+  weekLine.textContent = `${days.filter(Boolean).length} of the last ${WEEK_DAYS} days`;
 }
 
 function toggleToday(habit) {
@@ -131,13 +158,26 @@ function render() {
     const item = document.createElement('li');
     const label = document.createElement('label');
     const checkbox = document.createElement('input');
+    const text = document.createElement('span');
     const name = document.createElement('span');
+    const week = document.createElement('span');
+    const squares = document.createElement('span');
+    const weekLine = document.createElement('span');
     const remove = document.createElement('button');
 
     checkbox.type = 'checkbox';
     checkbox.checked = habit.doneDates.includes(today);
     item.classList.toggle('done', checkbox.checked);
     name.textContent = habit.name;
+
+    text.className = 'habit-text';
+    name.className = 'habit-name';
+    week.className = 'week';
+    squares.className = 'week-squares';
+    weekLine.className = 'week-line';
+    // The line next to the squares says the same thing in words.
+    squares.setAttribute('aria-hidden', 'true');
+    showWeek(habit, squares, weekLine);
 
     checkbox.addEventListener('change', () => {
       // A tick made on yesterday's list is not recorded; the fresh list is shown instead.
@@ -146,6 +186,7 @@ function render() {
       const done = toggleToday(habit);
       checkbox.checked = done;
       item.classList.toggle('done', done);
+      showWeek(habit, squares, weekLine);
       updateCounter();
     });
 
@@ -154,7 +195,9 @@ function render() {
     remove.setAttribute('aria-label', `Delete ${habit.name}`);
     remove.addEventListener('click', () => deleteHabit(habit));
 
-    label.append(checkbox, name);
+    week.append(squares, weekLine);
+    text.append(name, week);
+    label.append(checkbox, text);
     item.append(label, remove);
     list.appendChild(item);
   }
