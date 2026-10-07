@@ -2,6 +2,9 @@ const form = document.getElementById('add-form');
 const input = document.getElementById('habit-input');
 const list = document.getElementById('habit-list');
 const emptyMessage = document.getElementById('empty-message');
+const counter = document.getElementById('counter');
+const counterText = document.getElementById('counter-text');
+const counterAllDone = document.getElementById('counter-all-done');
 const saveMessage = document.getElementById('save-message');
 const undoMessage = document.getElementById('undo-message');
 const undoText = document.getElementById('undo-text');
@@ -107,6 +110,17 @@ function undoDelete() {
   render();
 }
 
+// A habit waiting out its undo time is already hidden, so it is not counted.
+function updateCounter() {
+  const today = todayKey();
+  const shown = habits.filter((habit) => habit !== pendingDelete);
+  const done = shown.filter((habit) => habit.doneDates.includes(today)).length;
+
+  counter.hidden = shown.length === 0;
+  counterText.textContent = `${done} of ${shown.length} done today`;
+  counterAllDone.hidden = done < shown.length;
+}
+
 function render() {
   const today = todayKey();
   const shown = habits.filter((habit) => habit !== pendingDelete);
@@ -132,6 +146,7 @@ function render() {
       const done = toggleToday(habit);
       checkbox.checked = done;
       item.classList.toggle('done', done);
+      updateCounter();
     });
 
     remove.type = 'button';
@@ -145,6 +160,7 @@ function render() {
   }
 
   emptyMessage.hidden = shown.length > 0;
+  updateCounter();
 }
 
 // Submitting the form covers both the Add button and pressing Enter.
