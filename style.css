@@ -1,0 +1,78 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 2rem 1rem;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 1.0625rem;
+  line-height: 1.5;
+  color: #222;
+  background: #fafafa;
+}
+
+main {
+  max-width: 32rem;
+  margin: 0 auto;
+}
+
+h1 {
+  margin: 0 0 1.5rem;
+  font-size: 1.75rem;
+}
+
+#add-form {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+#habit-input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.625rem 0.75rem;
+  font: inherit;
+  border: 1px solid #bbb;
+  border-radius: 6px;
+  background: #fff;
+}
+
+button {
+  padding: 0.625rem 1rem;
+  font: inherit;
+  color: #fff;
+  background: #2f6f4f;
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #275c42;
+}
+
+#habit-input:focus-visible,
+button:focus-visible {
+  outline: 2px solid #2f6f4f;
+  outline-offset: 2px;
+}
+
+#empty-message {
+  color: #666;
+}
+
+#habit-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+#habit-list li {
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
+  background: #fff;
+  border: 1px solid #e2e2e2;
+  border-radius: 6px;
+  overflow-wrap: anywhere;
+}
