@@ -3,7 +3,27 @@ const input = document.getElementById('habit-input');
 const list = document.getElementById('habit-list');
 const emptyMessage = document.getElementById('empty-message');
 
-const habits = [];
+const STORAGE_KEY = 'habit-tracker.habits';
+
+function loadHabits() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    if (!Array.isArray(saved)) return [];
+    return saved.filter((habit) => typeof habit === 'string');
+  } catch (error) {
+    return [];
+  }
+}
+
+function saveHabits() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(habits));
+  } catch (error) {
+    alert('Your habits could not be saved, so they may be gone after you reload the page.');
+  }
+}
+
+const habits = loadHabits();
 
 function render() {
   list.replaceChildren();
@@ -28,6 +48,7 @@ form.addEventListener('submit', (event) => {
   input.value = '';
   input.focus();
   render();
+  saveHabits();
 });
 
 render();
