@@ -17,7 +17,7 @@ Open `index.html` in a browser. There is no build step.
 - Keep everything in three files: `index.html`, `style.css`, `app.js`.
 - No frameworks, no build step, no external libraries.
 - Show progress as "X of the last 7 days", never as strict streaks.
-- Show a counter "X of Y done today".
+- Show a counter "X / Y completed" with a thin progress bar.
 - Never store passwords, API keys or other sensitive data in `localStorage`.
 - Ask before adding anything that was not requested.
 

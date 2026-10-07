@@ -5,6 +5,7 @@ const emptyMessage = document.getElementById('empty-message');
 const counter = document.getElementById('counter');
 const counterText = document.getElementById('counter-text');
 const counterAllDone = document.getElementById('counter-all-done');
+const progressFill = document.getElementById('progress-fill');
 const saveMessage = document.getElementById('save-message');
 const undoMessage = document.getElementById('undo-message');
 const undoText = document.getElementById('undo-text');
@@ -144,7 +145,8 @@ function updateCounter() {
   const done = shown.filter((habit) => habit.doneDates.includes(today)).length;
 
   counter.hidden = shown.length === 0;
-  counterText.textContent = `${done} of ${shown.length} done today`;
+  counterText.textContent = `${done} / ${shown.length} completed`;
+  progressFill.style.width = shown.length ? `${(done / shown.length) * 100}%` : '0';
   counterAllDone.hidden = done < shown.length;
 }
 
